@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e8dfc9">
+<title>Uditi & Yadhneya — Wedding Invitation</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9e0cc}
+#stage{position:relative;width:100%;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#page{width:100%;height:100%;object-fit:cover;object-position:center;display:block;user-select:none;-webkit-user-drag:none}
+#tap-zones{position:absolute;inset:0;pointer-events:none}
+.dot-zone{position:absolute;right:1.4%;width:8%;height:3.2%;transform:translateY(-50%);pointer-events:auto;border:0;background:transparent;padding:0}
+.dot-zone:focus-visible{outline:1px solid #a77a2b;border-radius:50%}
+#sound{position:absolute;right:2%;top:1.6%;width:12%;height:7%;border:0;border-radius:50%;background:transparent;cursor:pointer}
+#sound:focus-visible{outline:2px solid #a77a2b}
+#prev,#next{position:absolute;top:15%;bottom:15%;width:12%;border:0;background:transparent;opacity:0}
+#prev{left:0}#next{right:0}
+@media(min-aspect-ratio: 0.7/1){
+ #page{object-fit:contain}
+}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="Wedding invitation">
+<img id="page" src="page1.jpg" alt="Uditi and Yadhneya wedding invitation">
+<div id="tap-zones" aria-label="Invitation page navigation">
+  <button class="dot-zone" style="top:41.2%" data-page="0" aria-label="Page 1"></button>
+  <button class="dot-zone" style="top:43.7%" data-page="1" aria-label="Page 2"></button>
+  <button class="dot-zone" style="top:46.1%" data-page="2" aria-label="Page 3"></button>
+  <button class="dot-zone" style="top:48.5%" data-page="3" aria-label="Page 4"></button>
+  <button class="dot-zone" style="top:51.0%" data-page="4" aria-label="Page 5"></button>
+  <button class="dot-zone" style="top:53.5%" data-page="5" aria-label="Page 6"></button>
+  <button class="dot-zone" style="top:56.0%" data-page="6" aria-label="Page 7"></button>
+  <button class="dot-zone" style="top:58.5%" data-page="7" aria-label="Page 8"></button>
+</div>
+<button id="sound" aria-label="Play or pause invitation music" title="Play or pause music"></button>
+<button id="prev" aria-label="Previous page"></button>
+<button id="next" aria-label="Next page"></button>
+<audio id="music" src="invitation-audio.mp3" preload="auto" loop></audio>
+</main>
+<script>
+const pages=Array.from({length:8},(_,i)=>`page${i+1}.jpg`);
+let current=0;
+const img=document.getElementById('page');
+function show(n){
+ current=(n+pages.length)%pages.length;
+ img.src=pages[current];
+}
+document.querySelectorAll('.dot-zone').forEach(b=>b.addEventListener('click',()=>show(+b.dataset.page)));
+document.getElementById('prev').addEventListener('click',()=>show(current-1));
+document.getElementById('next').addEventListener('click',()=>show(current+1));
+document.addEventListener('keydown',e=>{
+ if(e.key==='ArrowRight'||e.key==='PageDown'){show(current+1)}
+ if(e.key==='ArrowLeft'||e.key==='PageUp'){show(current-1)}
+});
+let startX=null;
+document.getElementById('stage').addEventListener('touchstart',e=>{startX=e.changedTouches[0].clientX},{passive:true});
+document.getElementById('stage').addEventListener('touchend',e=>{
+ if(startX===null)return;
+ const dx=e.changedTouches[0].clientX-startX;
+ if(Math.abs(dx)>55)show(current+(dx<0?1:-1));
+ startX=null;
+},{passive:true});
+const audio=document.getElementById('music');
+document.getElementById('sound').addEventListener('click',async()=>{
+ if(audio.paused){try{await audio.play()}catch(e){alert('Tap again to start the music.')}}else{audio.pause()}
+});
+</script>
+</body>
+</html>
